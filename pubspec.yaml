@@ -1,0 +1,27 @@
+name: police_dog_recognition_frontend
+description: "警犬姿态与动作识别 Android 前端（对接 police-dog-recognition backend-core 接口）"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+  # 图片选择（拍照 / 相册单选 / 相册多选）
+  image_picker: ^1.1.2
+  # 轻量状态管理
+  provider: ^6.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
