@@ -1,0 +1,124 @@
+{
+  "format": "ncnn",
+  "ncnn_version": "20260526",
+  "pnnx_version": "20260526",
+  "fp16_weights": false,
+  "models": {
+    "ssdlite": {
+      "input": [
+        1,
+        3,
+        320,
+        320
+      ],
+      "outputs": [
+        [
+          1,
+          3234,
+          4
+        ],
+        [
+          1,
+          3234,
+          2
+        ]
+      ],
+      "preprocess": {
+        "rgb_scale": "pixel / 127.5 - 1"
+      }
+    },
+    "rtmpose_s": {
+      "input": [
+        1,
+        3,
+        256,
+        256
+      ],
+      "outputs": [
+        [
+          1,
+          39,
+          512
+        ],
+        [
+          1,
+          39,
+          512
+        ]
+      ],
+      "preprocess": {
+        "rgb_mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "rgb_std": [
+          0.229,
+          0.224,
+          0.225
+        ]
+      },
+      "simcc_split_ratio": 2.0,
+      "simcc_logit_scale": 849.0,
+      "keypoint_names": [
+        "nose",
+        "upper_jaw",
+        "lower_jaw",
+        "mouth_end_right",
+        "mouth_end_left",
+        "right_eye",
+        "right_earbase",
+        "right_earend",
+        "right_antler_base",
+        "right_antler_end",
+        "left_eye",
+        "left_earbase",
+        "left_earend",
+        "left_antler_base",
+        "left_antler_end",
+        "neck_base",
+        "neck_end",
+        "throat_base",
+        "throat_end",
+        "back_base",
+        "back_end",
+        "back_middle",
+        "tail_base",
+        "tail_end",
+        "front_left_thai",
+        "front_left_knee",
+        "front_left_paw",
+        "front_right_thai",
+        "front_right_knee",
+        "front_right_paw",
+        "back_left_paw",
+        "back_left_thai",
+        "back_right_thai",
+        "back_left_knee",
+        "back_right_knee",
+        "back_right_paw",
+        "belly_bottom",
+        "body_middle_right",
+        "body_middle_left"
+      ]
+    }
+  },
+  "files": {
+    "ssdlite.ncnn.param": {
+      "bytes": 21003,
+      "sha256": "af2d8ebd23bf6fcd3537c298912c574d9aa67dcfb6eeb34c5050a911b1def14b"
+    },
+    "ssdlite.ncnn.bin": {
+      "bytes": 8760584,
+      "sha256": "fe83b43b0dd79708bb684a97c0ee76e248cc7af8ae3a4d27545b992b98834b2c"
+    },
+    "rtmpose_s.ncnn.param": {
+      "bytes": 13862,
+      "sha256": "d990a9904da5199e7ecdac3c6cdce32b7df30dc835796da4527a68f33d17e4b4"
+    },
+    "rtmpose_s.ncnn.bin": {
+      "bytes": 24225568,
+      "sha256": "38f182e215ebbe8988fba8fe6ab1519d14f0bf0b52a20c57f5a59c1805f814c6"
+    }
+  }
+}

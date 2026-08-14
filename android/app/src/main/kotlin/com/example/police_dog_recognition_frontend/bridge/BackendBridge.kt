@@ -1,5 +1,6 @@
 package com.example.police_dog_recognition_frontend.bridge
 
+import android.content.Context
 import com.policedog.recognition.backend.api.BackendResult
 import com.policedog.recognition.backend.api.BatchId
 import com.policedog.recognition.backend.api.BatchState
@@ -29,7 +30,12 @@ import org.json.JSONObject
  * EventChannel : com.policedog.recognition/backend/events/{task|batch}/{id}
  *   （由 registerEventObserver 动态注册，支持多个任务/批次并发观察）
  */
-class BackendBridge(private val messenger: BinaryMessenger) {
+class BackendBridge(
+    context: Context,
+    private val messenger: BinaryMessenger,
+) {
+
+    private val applicationContext = context.applicationContext
 
     companion object {
         const val CHANNEL = "com.policedog.recognition/backend"
@@ -47,7 +53,7 @@ class BackendBridge(private val messenger: BinaryMessenger) {
     }
 
     private val backend: RecognitionBackend
-        get() = BackendHolder.get()
+        get() = BackendHolder.get(applicationContext)
 
     private fun handle(call: MethodCall, result: MethodChannel.Result) {
         when (call.method) {

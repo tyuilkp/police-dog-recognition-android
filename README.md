@@ -7,7 +7,9 @@
 > `backend-core` 源码副本（见下方架构图）进行构建，接口变更时需从上游同步。
 
 识别目标：单只警犬的 **站立 / 坐下 / 趴下** 动作与 **39 个 SuperAnimal-Quadruped 关键点**。
-当前阶段后端为 Mock 引擎（联调版），端侧模型转换验证后通过同一接口接入。
+当前 Android 端已接入 ncnn `20260526` 与 C++17/JNI 完整图像通路：SSDLite 输出单犬框，
+RTMPose-S 输出 39 个 SimCC 关键点。动作分类器尚未接入，所以当前动作字段保持
+`UNKNOWN`，但犬框、关键点、置信度和耗时均来自真实端侧推理。
 
 ## 架构
 
@@ -22,7 +24,9 @@
 ┌──────────────────────────────┴───────────────────────────────────────┐
 │  android/app/.../bridge/     BackendBridge · BackendJson · BackendHolder│
 │  android/app/.../backend/    pdr backend-core 源码副本（11 个 .kt）     │
-│                              MockBackendFactory → RecognitionBackend   │
+│  android/app/.../nativeengine/ Kotlin NativeRecognitionEngine          │
+│  android/app/src/main/cpp/   JNI + ncnn + SSDLite/RTMPose C++ 推理           │
+│                              NativeBackendFactory → RecognitionBackend │
 └───────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -46,14 +50,26 @@
 ## 构建
 
 环境要求：Flutter 3.47+、JDK 17（AGP 9 的 `JdkImageTransform` 在 JDK 26 下会失败，
-需 `flutter config --jdk-dir=/path/to/jdk17`）、Android SDK 36。
+需 `flutter config --jdk-dir=/path/to/jdk17`）、Android SDK 36、Android NDK 与
+CMake 3.22.1。
 
-```bash
+Android 构建前先下载并校验固定版本的 ncnn SDK（该目录不入库）：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tooling/setup_ncnn.ps1
+```
+
+然后执行 Flutter 构建：
+
+```text
 flutter pub get
 flutter analyze
 flutter test
 flutter build apk --release   # 产物：build/app/outputs/flutter-apk/app-release.apk
 ```
+
+模型资产位于 `android/app/src/main/assets/models/`，包含 SSDLite 与 RTMPose-S 的
+`.ncnn.param/.ncnn.bin` 及产物哈希清单。
 
 > 模板 release 使用 debug 签名（可直接安装）；正式分发需替换签名配置。
 

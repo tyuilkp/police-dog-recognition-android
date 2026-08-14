@@ -27,6 +27,19 @@ android {
         // flag during build.
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        externalNativeBuild {
+            cmake {
+                cppFlags += listOf("-std=c++17", "-Wall", "-Wextra")
+            }
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path = file("src/main/cpp/CMakeLists.txt")
+            version = "3.22.1"
+        }
     }
 
     buildTypes {
@@ -47,6 +60,7 @@ kotlin {
 dependencies {
     // pdr backend-core 依赖 kotlinx-coroutines（Flow / StateFlow / Mutex 等）
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
+    implementation("androidx.exifinterface:exifinterface:1.4.2")
 }
 
 flutter {

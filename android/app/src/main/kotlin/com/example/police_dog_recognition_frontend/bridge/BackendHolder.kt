@@ -1,7 +1,8 @@
 package com.example.police_dog_recognition_frontend.bridge
 
+import android.content.Context
 import com.policedog.recognition.backend.api.RecognitionBackend
-import com.policedog.recognition.backend.mock.MockBackendFactory
+import com.policedog.recognition.nativeengine.NativeBackendFactory
 
 /**
  * 进程级持有唯一的 RecognitionBackend 实例。
@@ -13,9 +14,9 @@ object BackendHolder {
     @Volatile
     private var instance: RecognitionBackend? = null
 
-    fun get(): RecognitionBackend =
+    fun get(context: Context): RecognitionBackend =
         instance ?: synchronized(this) {
-            instance ?: MockBackendFactory.create().also { instance = it }
+            instance ?: NativeBackendFactory.create(context.applicationContext).also { instance = it }
         }
 
     /** 仅供桥接层 release 流程使用：先释放旧实例，再清空引用以便重建。 */
