@@ -1,5 +1,7 @@
 #include "inference_engine.hpp"
 
+#include "action_classifier.hpp"
+
 #include <android/asset_manager.h>
 
 #include <algorithm>
@@ -116,7 +118,15 @@ std::string InferenceEngine::Infer(const ImageView& image) const {
     float mean_confidence = 0.0F;
     for (const auto& point : keypoints) mean_confidence += point.confidence;
     if (!keypoints.empty()) mean_confidence /= static_cast<float>(keypoints.size());
-    const bool accepted = confident_keypoints >= 20 && mean_confidence >= 0.20F;
+    const bool pose_accepted = confident_keypoints >= 20 && mean_confidence >= 0.20F;
+
+    const auto classification_started = Clock::now();
+    const ActionClassification action = ClassifyDogAction(keypoints, detections.front());
+    const auto classification_millis = ElapsedMillis(classification_started);
+    const bool action_accepted = action.label != ActionLabel::Unknown;
+    const char* quality = !pose_accepted
+        ? "LOW_CONFIDENCE"
+        : (action_accepted ? "ACCEPTED" : "UNKNOWN_POSE");
 
     const Box& dog = detections.front();
     std::ostringstream output;
@@ -124,8 +134,12 @@ std::string InferenceEngine::Infer(const ImageView& image) const {
     output << "{"
            << "\"ok\":true,"
            << "\"engineMode\":\"ncnn\","
-           << "\"action\":\"UNKNOWN\","
-           << "\"actionScores\":{\"STANDING\":0.0,\"SITTING\":0.0,\"LYING\":0.0,\"UNKNOWN\":1.0},"
+           << "\"action\":\"" << ActionLabelName(action.label) << "\","
+           << "\"actionScores\":{"
+           << "\"STANDING\":" << action.scores[0] << ','
+           << "\"SITTING\":" << action.scores[1] << ','
+           << "\"LYING\":" << action.scores[2] << ','
+           << "\"UNKNOWN\":" << action.scores[3] << "},"
            << "\"dogBox\":{"
            << "\"left\":" << dog.left / image.width << ','
            << "\"top\":" << dog.top / image.height << ','
@@ -143,20 +157,28 @@ std::string InferenceEngine::Infer(const ImageView& image) const {
                << ",\"confidence\":" << point.confidence << '}';
     }
     output << "],"
-           << "\"quality\":\"" << (accepted ? "ACCEPTED" : "LOW_CONFIDENCE") << "\","
+           << "\"quality\":\"" << quality << "\","
            << "\"warnings\":[";
-    if (!accepted) output << "\"LOW_KEYPOINT_CONFIDENCE\",";
-    output << "\"LOW_ACTION_CONFIDENCE\"],"
+    bool has_warning = false;
+    if (!pose_accepted) {
+        output << "\"LOW_KEYPOINT_CONFIDENCE\"";
+        has_warning = true;
+    }
+    if (!action_accepted) {
+        if (has_warning) output << ',';
+        output << "\"LOW_ACTION_CONFIDENCE\"";
+    }
+    output << "],"
            << "\"timing\":{"
            << "\"totalMillis\":" << ElapsedMillis(total_started) << ','
            << "\"detectionMillis\":" << detection_millis << ','
            << "\"poseMillis\":" << pose_millis << ','
-           << "\"classificationMillis\":0},"
+           << "\"classificationMillis\":" << classification_millis << "},"
            << "\"modelInfo\":{"
            << "\"detectorName\":\"superanimal_quadruped_ssdlite_ncnn\","
            << "\"poseModelName\":\"superanimal_quadruped_rtmpose_s_ncnn\","
-           << "\"actionModelName\":\"not-loaded\","
-           << "\"version\":\"ncnn-20260526-pipeline-0.2.0\"}"
+           << "\"actionModelName\":\"geometric-keypoint-rules-v1\","
+           << "\"version\":\"ncnn-20260526-pipeline-0.3.0\"}"
            << '}';
     return output.str();
 }

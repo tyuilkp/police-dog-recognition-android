@@ -41,6 +41,13 @@ struct SimCCPoint {
     float confidence;
 };
 
+struct PoseKeypoint {
+    int index;
+    float x;
+    float y;
+    float confidence;
+};
+
 std::vector<Anchor> GenerateSSDLiteAnchors();
 
 Box DecodeSSDLiteBox(

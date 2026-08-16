@@ -5,6 +5,7 @@ project(police_dog_inference LANGUAGES CXX)
 add_library(
     police_dog_inference
     SHARED
+    action_classifier.cpp
     dog_detector.cpp
     inference_engine.cpp
     native_bridge.cpp

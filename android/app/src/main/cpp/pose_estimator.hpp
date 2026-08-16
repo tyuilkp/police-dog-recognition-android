@@ -11,13 +11,6 @@
 
 namespace pdr {
 
-struct PoseKeypoint {
-    int index;
-    float x;
-    float y;
-    float confidence;
-};
-
 class PoseEstimator final {
 public:
     bool Load(AAssetManager* assets, const std::string& model_root, std::string& error);
