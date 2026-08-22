@@ -14,7 +14,7 @@ on:
       - "tooling/setup_ncnn.ps1"
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   release-apk:
@@ -55,6 +55,19 @@ jobs:
 
       - name: Write APK checksum
         run: sha256sum build/app/outputs/flutter-apk/app-release.apk > build/app/outputs/flutter-apk/app-release.apk.sha256
+
+      - name: Publish APK prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "android-build-${GITHUB_RUN_NUMBER}" \
+            build/app/outputs/flutter-apk/app-release.apk#police-dog-recognition.apk \
+            build/app/outputs/flutter-apk/app-release.apk.sha256#police-dog-recognition.apk.sha256 \
+            --repo "${GITHUB_REPOSITORY}" \
+            --target "${GITHUB_SHA}" \
+            --title "Android APK build ${GITHUB_RUN_NUMBER}" \
+            --notes "Automated release APK built from ${GITHUB_SHA}. Signed with the project debug key for installation testing." \
+            --prerelease
 
       - name: Upload release APK
         uses: actions/upload-artifact@v7
