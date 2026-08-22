@@ -26,9 +26,8 @@ if(NOT EXISTS "${NCNN_PACKAGE_ROOT}/lib/cmake/ncnn/ncnnConfig.cmake")
         "ncnn Android package is missing for ${ANDROID_ABI}. "
         "Run tooling/setup_ncnn.ps1 from the repository root before building.")
 endif()
-find_package(ncnn 20260526 REQUIRED CONFIG
-    PATHS "${NCNN_PACKAGE_ROOT}/lib/cmake/ncnn"
-    NO_DEFAULT_PATH)
+set(ncnn_DIR "${NCNN_PACKAGE_ROOT}/lib/cmake/ncnn" CACHE PATH "Bundled ncnn package" FORCE)
+find_package(ncnn CONFIG REQUIRED)
 
 target_link_libraries(
     police_dog_inference

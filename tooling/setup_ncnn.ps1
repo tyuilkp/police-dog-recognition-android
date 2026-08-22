@@ -55,7 +55,12 @@ try {
     }
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
     foreach ($abi in $abis) {
-        Copy-Item -LiteralPath (Join-Path $packageRoot.FullName $abi) -Destination $destination -Recurse
+        $abiDestination = Join-Path $destination $abi
+        Copy-Item -LiteralPath (Join-Path $packageRoot.FullName $abi) -Destination $abiDestination -Recurse
+        $installedConfig = Join-Path $abiDestination "lib/cmake/ncnn/ncnnConfig.cmake"
+        if (-not (Test-Path -LiteralPath $installedConfig)) {
+            throw "ncnn installation failed for $abi; missing $installedConfig"
+        }
     }
 } finally {
     if (Test-Path -LiteralPath $temporaryDirectory) {
