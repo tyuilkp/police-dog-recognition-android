@@ -5,7 +5,6 @@
 #include <jni.h>
 
 #include <cstdint>
-#include <exception>
 #include <new>
 #include <string>
 
@@ -45,12 +44,7 @@ Java_com_policedog_recognition_nativeengine_NativeInferenceBridge_nativeInitiali
         return ToJString(env, "{\"ok\":false,\"errorCode\":\"MODEL_LOAD_FAILED\",\"message\":\"Native engine allocation failed\"}");
     }
     auto* assets = AAssetManager_fromJava(env, asset_manager);
-    try {
-        return ToJString(env, engine->Initialize(assets, FromJString(env, model_root)));
-    } catch (...) {
-        engine->Release();
-        return ToJString(env, "{\"ok\":false,\"errorCode\":\"MODEL_LOAD_FAILED\",\"message\":\"Native model initialization raised an exception\"}");
-    }
+    return ToJString(env, engine->Initialize(assets, FromJString(env, model_root)));
 }
 
 extern "C" JNIEXPORT jstring JNICALL
@@ -75,14 +69,7 @@ Java_com_policedog_recognition_nativeengine_NativeInferenceBridge_nativeInfer(
         static_cast<int>(info.height),
         static_cast<int>(info.stride),
     };
-    std::string result;
-    try {
-        result = engine->Infer(image);
-    } catch (const std::exception&) {
-        result = "{\"ok\":false,\"errorCode\":\"INFERENCE_FAILED\",\"message\":\"Native inference raised an exception\"}";
-    } catch (...) {
-        result = "{\"ok\":false,\"errorCode\":\"INFERENCE_FAILED\",\"message\":\"Native inference failed unexpectedly\"}";
-    }
+    const std::string result = engine->Infer(image);
     AndroidBitmap_unlockPixels(env, bitmap);
     return ToJString(env, result);
 }
